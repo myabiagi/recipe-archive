@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { Navbar } from "./components/Navbar";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -32,8 +33,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="antialiased">
+        <Navbar />
+        <main className="max-w-7xl mx-auto p-6">
         {children}
+        </main>
         <ScrollRestoration />
         <Scripts />
       </body>
