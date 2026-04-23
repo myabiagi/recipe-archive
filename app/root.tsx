@@ -8,7 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { Navbar } from "./components/Navbar";
+import { Navbar } from "./components/navBar";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [

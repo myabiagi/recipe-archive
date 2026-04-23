@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import { Zap, Scale, BookOpen } from "lucide-react";
 
 export function Welcome() {
