@@ -22,21 +22,21 @@ export function Welcome() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-foreground">
-        <div className="p-8 py-20 space-y-4 bg-background flex flex-col justify-center border border-foreground">
+        <div className="p-8 py-14 space-y-4 bg-background flex flex-col justify-center border border-foreground">
           <Zap className="text-accent" size={32} strokeWidth={1.5} />
           <h3 className="font-serif font-bold text-2xl uppercase italic">Smart Import</h3>
           <p className="text-sm leading-relaxed text-neutral-600">
             Paste any culinary text or digital manuscript. Our engine parses raw data into a structured record instantly.
           </p>
         </div>
-        <div className="p-8 py-20 space-y-4 bg-background flex flex-col justify-center border border-foreground">
+        <div className="p-8 py-14 space-y-4 bg-background flex flex-col justify-center border border-foreground">
           <Scale className="text-accent" size={32} strokeWidth={1.5} />
           <h3 className="font-serif font-bold text-2xl uppercase italic">Auto Scaling</h3>
           <p className="text-sm leading-relaxed text-neutral-600">
             Recalculate ratios with geometric precision. Serving adjustments reflect across all ingredients without error.
           </p>
         </div>
-        <div className="p-8 py-20 space-y-4 bg-background flex flex-col justify-center border border-foreground">
+        <div className="p-8 py-14 space-y-4 bg-background flex flex-col justify-center border border-foreground">
           <BookOpen className="text-accent" size={32} strokeWidth={1.5} />
           <h3 className="font-serif font-bold text-2xl uppercase italic">Organized</h3>
           <p className="text-sm leading-relaxed text-neutral-600">
