@@ -1,33 +1,81 @@
-import { Link, NavLink } from "react-router";
-import { ChefHat, PlusCircle, BookOpen } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router";
+import { ChefHat, PlusCircle, BookOpen, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "~/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 export function Navbar() {
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleProtectedNavigation = (e: React.MouseEvent, to: string) => {
+    // Allow access to the home page ("/") even if not logged in
+    if (!user && to !== "/") {
+      e.preventDefault();
+      navigate("/auth");
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   return (
-    <nav className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-6 py-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl text-orange-600">
-          <ChefHat size={28} />
-          <span>RecipeArchive</span>
-        </Link>
+    <nav className="border-b-4 border-foreground bg-background">
+      <div className="w-full px-6 py-2 border-b border-foreground flex justify-between text-[10px] font-mono uppercase tracking-widest text-neutral-500">
+        <span>Vol. 1.0 — Archive Edition</span>
+        <span>{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        <span className="hidden sm:inline">Printed in Digital Workspace</span>
+      </div>
+      
+      <div className="w-full px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-3 font-serif font-black text-4xl lg:text-5xl uppercase tracking-tighter cursor-default select-none">
+          <ChefHat size={40} strokeWidth={2.5} />
+          <span>Recipe Archive</span>
+        </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8 font-sans text-xs font-bold uppercase tracking-[0.2em]">
           <NavLink 
             to="/" 
-            className={({ isActive }) => `flex items-center gap-1.5 transition-colors ${isActive ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 dark:text-gray-300'}`}
+            onClick={(e) => handleProtectedNavigation(e, "/")}
+            className={({ isActive }) => `flex items-center gap-2 transition-colors ${isActive ? 'text-accent' : 'hover:text-accent'}`}
           >
-            <BookOpen size={20} />
             <span>My Book</span>
           </NavLink>
           <NavLink 
-            to="/import" 
-            className={({ isActive }) => `flex items-center gap-1.5 transition-colors ${isActive ? 'text-orange-600 font-medium' : 'text-gray-600 hover:text-orange-600 dark:text-gray-300'}`}
+            to="/import"
+            onClick={(e) => handleProtectedNavigation(e, "/import")}
+            className={({ isActive }) => `flex items-center gap-2 transition-colors ${isActive ? 'text-accent' : 'hover:text-accent'}`}
           >
-            <PlusCircle size={20} />
             <span>Import</span>
           </NavLink>
-          <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-medium border border-orange-200">
-            M
-          </div>
+          {user ? (
+            <button 
+              onClick={handleSignOut}
+              className="flex items-center gap-2 hover:text-accent transition-colors cursor-pointer"
+            >
+              <span>Sign Out</span>
+            </button>
+          ) : (
+            <Link to="/auth" className="px-6 py-2 bg-foreground text-background hover:bg-accent transition-colors">
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>
