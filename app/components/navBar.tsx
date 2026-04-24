@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "~/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
-export function Navbar() {
+export function NavBar() {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
