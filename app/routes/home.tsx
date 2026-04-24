@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { Welcome } from "~/features/welcome/welcome";
 import { useEffect, useState } from "react";
 import { supabase } from "~/lib/supabase";
 
