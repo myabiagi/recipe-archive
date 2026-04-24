@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { supabase } from "~/lib/supabase";
-import { LoginForm } from "../features/auth/loginForm";
-import { SignupForm } from "../features/auth/signupForm";
-import { PasswordRecovery } from "../features/auth/passwordRecovery";
+import { LoginForm } from "~/features/auth/loginForm";
+import { SignupForm } from "~/features/auth/signupForm";
+import { PasswordRecovery } from "~/features/auth/passwordRecovery";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
