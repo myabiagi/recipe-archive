@@ -8,7 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { Navbar } from "./components/Navbar";
+import { NavBar } from "~/components/navBar";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -35,7 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="antialiased selection:bg-accent selection:text-white">
-        <Navbar />
+        <NavBar />
         <main className="w-full border-x border-foreground">
         {children}
         </main>
