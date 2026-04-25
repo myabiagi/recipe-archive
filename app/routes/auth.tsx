@@ -15,14 +15,22 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "PASSWORD_RECOVERY") {
         setView("update-password");
+        return;
+      }
+      
+      if (event === "SIGNED_IN") {
+        const isRecovery = window.location.hash.includes("type=recovery");
+        if (isRecovery || view === "update-password") return;
+
+        navigate("/");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate, view]); 
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +41,15 @@ export default function Auth() {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth`,
       });
-      if (error) setError(error.message);
-      else setMessage("A recovery link has been dispatched.");
+      if (error) {
+        if (error.message.toLowerCase().includes("not found") || error.status === 422) {
+          setError("This email address is not registered in our archive.");
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setMessage("If this email exists in our archive, a recovery link has been dispatched.");
+      }
       return;
     }
 
@@ -44,7 +59,6 @@ export default function Auth() {
         setError(error.message);
       } else {
         setMessage("Password updated successfully. Accessing archive...");
-        // Give them a moment to read the success message before redirecting
         setTimeout(() => navigate("/"), 2000);
       }
       return;
