@@ -15,14 +15,21 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Listen for auth state changes, including PASSWORD_RECOVERY
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth Event Received:", event); // Helpful for debugging your link
       if (event === "PASSWORD_RECOVERY") {
         setView("update-password");
+      }
+      
+      // Optional: If they are already signed in and not in recovery, send them home
+      if (event === "SIGNED_IN" && view !== "update-password") {
+        navigate("/");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate, view]); // 'view' is in the dependency array because the SIGNED_IN check depends on its current value
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
