@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router";
-import { ChefHat, PlusCircle, BookOpen, LogOut } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "~/lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -44,7 +44,7 @@ export function NavBar() {
       </div>
       
       <div className="w-full px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-3 font-serif font-black text-4xl lg:text-5xl uppercase tracking-tighter cursor-default select-none">
+        <div className="flex items-center gap-2 font-serif font-black text-4xl lg:text-5xl uppercase tracking-tighter cursor-default select-none">
           <ChefHat size={40} strokeWidth={2.5} />
           <span>Recipe Archive</span>
         </div>
