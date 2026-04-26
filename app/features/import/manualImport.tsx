@@ -29,17 +29,16 @@ export function ManualImport() {
   const parseManuscript = () => {
     const errors: string[] = [];
     if (!title.trim()) errors.push("A recipe title is mandatory.");
-    if (!image) errors.push("A recipe image is mandatory. Please paste an image.");
     if (!CATEGORIES.includes(category)) errors.push("Please select a valid Category from the archive list.");
     if (cuisine.trim() && !CUISINES.includes(cuisine)) {
       errors.push("Please select a valid Cuisine from the archive list or leave it blank.");
     }
     
     const timeRegex = /^(?:\d+h\s*[0-5]?\dm|\d+h|[0-5]?\dm)$/i;
-    if (!totalTime.trim()) errors.push("Prep and Cook Time is mandatory.");
-    else if (!timeRegex.test(totalTime.trim())) errors.push("Time must be in a concise format (e.g., '1h 30m', '45m').");
+    if (totalTime.trim() && !timeRegex.test(totalTime.trim())) {
+      errors.push("Time must be in a concise format (e.g., '1h 30m', '45m').");
+    }
 
-    if (!sourceUrl.trim()) errors.push("A source URL is mandatory for archive credit.");
     if (!rawIngredients.trim()) errors.push("The Ingredients manuscript cannot be empty.");
     if (!rawInstructions.trim()) errors.push("The Instructions manuscript cannot be empty.");
     if (servingsBase === "" || servingsBase < 1 || servingsBase > 50) {
@@ -83,8 +82,8 @@ export function ManualImport() {
         ingredients,
         instructions,
         servings_base: Number(servingsBase),
-        source_url: sourceUrl.trim(),
-        total_time: totalTime.trim().toLowerCase()
+        source_url: sourceUrl.trim() || null,
+        total_time: totalTime.trim() ? totalTime.trim().toLowerCase() : null
       }]);
 
       if (error) {

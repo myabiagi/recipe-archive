@@ -32,7 +32,12 @@ export function ReviewEditor({
         )}
         <div>
           <h2 className="font-serif font-black text-3xl uppercase italic">{title || "Untitled"}</h2>
-          <p className="font-mono text-[10px] uppercase text-neutral-500">{category}{cuisine ? ` — ${cuisine}` : ""} — {totalTime} — {servings} Servings</p>
+          <p className="font-mono text-[10px] uppercase text-neutral-500">
+            {category}
+            {cuisine ? ` — ${cuisine}` : ""}
+            {totalTime ? ` — ${totalTime}` : ""}
+            {` — ${servings} Servings`}
+          </p>
           {sourceUrl && (
             <p className="font-mono text-[9px] uppercase text-neutral-400 mt-2 truncate max-w-xs">Source: {sourceUrl}</p>
           )}
