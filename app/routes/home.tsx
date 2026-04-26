@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "~/features/welcome/welcome";
+import { RecipeGrid } from "~/features/welcome/recipeGrid";
 import { useEffect, useState } from "react";
 import { supabase } from "~/lib/supabase";
 
@@ -27,16 +28,13 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (isLoading) return null; // Or a loading spinner
-
-  if (!isAuthenticated) {
-    return <Welcome />;
+  if (isLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] animate-pulse">Authenticating...</p>
+      </div>
+    );
   }
 
-  return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Recipe Book</h1>
-      <p className="text-gray-600 dark:text-gray-400">You haven't added any recipes yet. Try importing one!</p>
-    </div>
-  );
+  return isAuthenticated ? <RecipeGrid /> : <Welcome />;
 }
