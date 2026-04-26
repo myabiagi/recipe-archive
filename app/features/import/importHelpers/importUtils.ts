@@ -10,6 +10,11 @@ const IGNORE_KEYWORDS = [
   "units", "usm", "prevent your screen", "prep time", "cook time"
 ];
 
+const UNICODE_FRACTIONS: Record<string, string> = {
+  '½': '1/2', '⅓': '1/3', '⅔': '2/3', '¼': '1/4', '¾': '3/4',
+  '⅕': '1/5', '⅖': '2/5', '⅗': '3/5', '⅘': '4/5', '⅙': '1/6', '⅚': '5/6', '⅛': '1/8', '⅜': '3/8', '⅝': '5/8', '⅞': '7/8'
+};
+
 /**
  * Converts a decimal number to a clean fraction string for the UI.
  */
@@ -40,16 +45,17 @@ export function formatAmount(amount: number): string {
  * Attempts to extract amount, unit, and item from a raw string line.
  */
 export function smartParseLine(line: string): Ingredient | null {
-  const cleanLine = line.trim().toLowerCase();
+  // Normalize unicode fractions before parsing
+  const normalizedLine = line.trim().replace(/[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]/g, (m) => UNICODE_FRACTIONS[m] || m);
+  const cleanLine = normalizedLine.toLowerCase();
   
-  // Skip headers and noise
   if (IGNORE_KEYWORDS.some(k => cleanLine.includes(k)) || cleanLine.length < 2) {
     return null;
   }
 
   // Regex to capture: (Number or Fraction) (Optional Unit) (The rest of the string)
   const regex = /^([\d\/\.\s\-]+)?\s*([a-zA-Z]{1,10}\.?\b)?\s*(.*)$/;
-  const match = line.trim().match(regex);
+  const match = normalizedLine.match(regex);
 
   if (!match) return null;
 
@@ -79,7 +85,7 @@ export function smartParseLine(line: string): Ingredient | null {
 }
 
 /**
- * Safely parses strings and fractions (e.g., "1 1/2" -> 1.5)
+ * Safely parses strings and fractions (e.g., "1 1/2" -> 1.5) without using eval.
  */
 export function parseAmount(val: string): number {
   const cleanVal = val.replace(/\s+/g, ' ').trim();

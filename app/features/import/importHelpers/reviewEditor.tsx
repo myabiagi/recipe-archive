@@ -1,4 +1,4 @@
-import { formatAmount } from "../importUtils";
+import { formatAmount } from "./importUtils";
 import type { Ingredient } from "~/types/recipe";
 
 interface ReviewEditorProps {
