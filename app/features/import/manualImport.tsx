@@ -116,6 +116,9 @@ export function ManualImport({ initialData }: { initialData?: any }) {
 
       if (error) {
         console.error("Archive Rejection Details:", error);
+        if (error.code === '23505') {
+          throw new Error(`A recipe titled "${title.trim()}" already exists in your archive.`);
+        }
         throw new Error(error.message);
       }
 
