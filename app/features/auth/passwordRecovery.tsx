@@ -18,7 +18,7 @@ export function PasswordRecovery({ email, setEmail, onSubmit, error, message, on
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm focus:bg-neutral-100 outline-none transition-colors"
+          className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm focus:bg-neutral-100 outline-none transition-colors"
           required
         />
       </div>

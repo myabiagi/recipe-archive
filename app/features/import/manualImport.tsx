@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "~/lib/supabase";
 import { useNavigate } from "react-router";
 import type { Ingredient } from "~/types/recipe";
-import { smartParseLine, CATEGORIES, CUISINES } from "./importUtils";
+import { smartParseLine, parseAmount, CATEGORIES, CUISINES } from "./importUtils";
 import { ManuscriptForm } from "./manualHelpers/manuscriptForm";
 import { ReviewEditor } from "./manualHelpers/reviewEditor";
 
@@ -79,7 +79,11 @@ export function ManualImport() {
         image: image,
         category,
         cuisine: cuisine.trim() || null,
-        ingredients,
+        // Final parse to ensure edited strings (like "1/2") are numbers in DB
+        ingredients: ingredients.map(ing => ({
+          ...ing,
+          amount: typeof ing.amount === 'string' ? parseAmount(ing.amount) : ing.amount
+        })),
         instructions,
         servings_base: Number(servingsBase),
         source_url: sourceUrl.trim() || null,

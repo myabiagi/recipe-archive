@@ -24,6 +24,13 @@ export function ReviewEditor({
   ingredients, setIngredients, instructions, setInstructions, 
   onBack, onSave, isSaving, saveError 
 }: ReviewEditorProps) {
+  
+  const updateIngredient = (index: number, field: keyof Ingredient, value: any) => {
+    setIngredients(ingredients.map((ing, i) => 
+      i === index ? { ...ing, [field]: value } : ing
+    ));
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
       <div className="flex flex-col md:flex-row gap-6 border-b-2 border-foreground pb-4">
@@ -43,25 +50,30 @@ export function ReviewEditor({
           )}
         </div>
       </div>
+
+      <div className="bg-accent/5 border-l-2 border-accent px-4 py-2 mb-8">
+        <p className="font-mono text-[9px] uppercase text-accent font-bold tracking-tighter">Editorial Mode: Fields below are editable for final precision.</p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         <section>
           <h3 className="font-black uppercase text-[10px] tracking-widest border-b border-foreground/20 pb-2 mb-4">Ingredients</h3>
           {ingredients.map((ing: any, i: number) => (
-            <div key={i} className="flex gap-2 font-mono text-xs border-b border-dotted border-neutral-300 pb-1 mb-2">
+            <div key={i} className="flex gap-2 font-mono text-[16px] md:text-xs border-b border-dotted border-neutral-300 pb-1 mb-2 hover:bg-neutral-50 transition-colors group">
               <input 
                 className="w-12 font-bold bg-transparent border-none outline-none" 
-                value={formatAmount(ing.amount)} 
-                onChange={e => setIngredients(ingredients.map((item, idx) => idx === i ? { ...item, amount: parseFloat(e.target.value) || 0 } : item))} 
+                value={formatAmount(ing.amount)}
+                onChange={(e) => updateIngredient(i, 'amount', e.target.value)}
               />
               <input 
-                className="w-16 italic bg-transparent border-none outline-none" 
+                className="w-20 italic bg-transparent border-none outline-none" 
                 value={ing.unit} 
-                onChange={e => setIngredients(ingredients.map((item, idx) => idx === i ? { ...item, unit: e.target.value } : item))} 
+                onChange={(e) => updateIngredient(i, 'unit', e.target.value)}
               />
               <input 
                 className="flex-1 bg-transparent border-none outline-none" 
                 value={ing.item} 
-                onChange={e => setIngredients(ingredients.map((item, idx) => idx === i ? { ...item, item: e.target.value } : item))} 
+                onChange={(e) => updateIngredient(i, 'item', e.target.value)}
               />
             </div>
           ))}
@@ -69,7 +81,12 @@ export function ReviewEditor({
         <section>
           <h3 className="font-black uppercase text-[10px] tracking-widest border-b border-foreground/20 pb-2 mb-4">Instructions</h3>
           {instructions.map((inst: string, i: number) => (
-            <textarea key={i} rows={2} className="w-full font-serif text-sm italic mb-4 p-2 bg-neutral-50 border-l-2 border-accent outline-none" value={inst} onChange={e => {
+            <textarea 
+              key={i} 
+              rows={Math.max(2, Math.ceil(inst.length / 50))} 
+              className="w-full font-serif text-[16px] md:text-sm mb-4 p-2 bg-neutral-50 border-l-2 border-accent outline-none focus:bg-white focus:shadow-inner transition-all resize-none" 
+              value={inst} 
+              onChange={e => {
               const n = [...instructions]; n[i] = e.target.value; setInstructions(n);
             }} />
           ))}

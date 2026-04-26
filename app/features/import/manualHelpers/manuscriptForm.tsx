@@ -69,21 +69,33 @@ export function ManuscriptForm({
         </div>
         <div>
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block mb-2">Prep and Cook Time</label>
-          <input type="text" value={totalTime} onChange={(e) => setTotalTime(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm outline-none" placeholder="e.g., 1h 30m or 45m" />
+          <input type="text" value={totalTime} onChange={(e) => setTotalTime(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none" placeholder="e.g., 1h 30m or 45m" />
         </div>
         <div>
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block mb-2">Category</label>
-          <input type="text" list="cat-list" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm outline-none" />
-          <datalist id="cat-list">{CATEGORIES.map(c => <option key={c} value={c} />)}</datalist>
+          <select 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)} 
+            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none"
+          >
+            <option value="" disabled>Select Category</option>
+            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
         <div>
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block mb-2">Cuisine</label>
-          <input type="text" list="cui-list" value={cuisine} onChange={(e) => setCuisine(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm outline-none" />
-          <datalist id="cui-list">{CUISINES.map(c => <option key={c} value={c} />)}</datalist>
+          <select 
+            value={cuisine} 
+            onChange={(e) => setCuisine(e.target.value)} 
+            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none"
+          >
+            <option value="">None / General</option>
+            {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
         <div>
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block mb-2">Source URL</label>
-          <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm outline-none" placeholder="https://..." />
+          <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none" placeholder="https://..." />
         </div>
         <div>
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block mb-2">Serving Base (1-50)</label>
@@ -94,7 +106,7 @@ export function ManuscriptForm({
               const val = e.target.value;
               setServings(val === "" ? "" : parseInt(val));
             }}
-            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
             placeholder="1" 
           />
         </div>
@@ -103,11 +115,11 @@ export function ManuscriptForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block">Ingredients Manuscript</label>
-          <textarea rows={10} value={rawIngredients} onChange={(e) => setRawIngredients(e.target.value)} className="w-full bg-transparent border-2 border-foreground p-4 font-mono text-sm outline-none resize-none" placeholder="1 cup flour..." />
+          <textarea rows={10} value={rawIngredients} onChange={(e) => setRawIngredients(e.target.value)} className="w-full bg-transparent border-2 border-foreground p-4 font-mono text-[16px] md:text-sm outline-none resize-none" placeholder="1 cup flour..." />
         </div>
         <div className="space-y-2">
           <label className="font-sans text-[10px] font-black uppercase tracking-widest block">Instructions Manuscript</label>
-          <textarea rows={10} value={rawInstructions} onChange={(e) => setRawInstructions(e.target.value)} className="w-full bg-transparent border-2 border-foreground p-4 font-mono text-sm outline-none resize-none" placeholder="Preheat oven..." />
+          <textarea rows={10} value={rawInstructions} onChange={(e) => setRawInstructions(e.target.value)} className="w-full bg-transparent border-2 border-foreground p-4 font-mono text-[16px] md:text-sm outline-none resize-none" placeholder="Preheat oven..." />
         </div>
       </div>
 
