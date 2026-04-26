@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CATEGORIES, CUISINES } from "../importUtils";
+import { CATEGORIES, CUISINES } from "./importUtils";
 
 interface ManuscriptFormProps {
   title: string;
@@ -76,7 +76,7 @@ export function ManuscriptForm({
           <select 
             value={category} 
             onChange={(e) => setCategory(e.target.value)} 
-            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none"
+            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none focus:bg-neutral-50"
           >
             <option value="" disabled>Select Category</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -87,7 +87,7 @@ export function ManuscriptForm({
           <select 
             value={cuisine} 
             onChange={(e) => setCuisine(e.target.value)} 
-            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none"
+            className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm outline-none cursor-pointer rounded-none appearance-none focus:bg-neutral-50"
           >
             <option value="">None / General</option>
             {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}

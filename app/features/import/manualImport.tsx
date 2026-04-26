@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "~/lib/supabase";
 import { useNavigate } from "react-router";
 import type { Ingredient } from "~/types/recipe";
-import { smartParseLine, parseAmount, CATEGORIES, CUISINES } from "./importUtils";
-import { ManuscriptForm } from "./manualHelpers/manuscriptForm";
-import { ReviewEditor } from "./manualHelpers/reviewEditor";
+import { smartParseLine, parseAmount, CATEGORIES, CUISINES } from "./importHelpers/importUtils";
+import { ManuscriptForm } from "./importHelpers/manuscriptForm";
+import { ReviewEditor } from "./importHelpers/reviewEditor";
 
-export function ManualImport() {
+export function ManualImport({ initialData }: { initialData?: any }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [cuisine, setCuisine] = useState("");
@@ -25,6 +25,29 @@ export function ManualImport() {
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   
   const navigate = useNavigate();
+
+  // If data comes in from a URL scrape, pre-populate and enter review mode
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setCategory(initialData.category);
+      setCuisine(initialData.cuisine);
+      setImage(initialData.image);
+      setTotalTime(initialData.totalTime);
+      setSourceUrl(initialData.sourceUrl);
+      setRawIngredients(initialData.ingredients.join('\n'));
+      setRawInstructions(initialData.instructions.join('\n'));
+      
+      // Auto-parse into Review Mode
+      const ings = (initialData.ingredients as string[])
+        .map(line => smartParseLine(line))
+        .filter((ing): ing is Ingredient => ing !== null);
+      
+      setIngredients(ings);
+      setInstructions(initialData.instructions);
+      setIsReviewing(true);
+    }
+  }, [initialData]);
 
   const parseManuscript = () => {
     const errors: string[] = [];
@@ -79,7 +102,8 @@ export function ManualImport() {
         image: image,
         category,
         cuisine: cuisine.trim() || null,
-        // Final parse to ensure edited strings (like "1/2") are numbers in DB
+        // Normalize amounts for database storage
+        // Final parse ensures any edited strings (like "1/2") are converted to numbers before saving
         ingredients: ingredients.map(ing => ({
           ...ing,
           amount: typeof ing.amount === 'string' ? parseAmount(ing.amount) : ing.amount
