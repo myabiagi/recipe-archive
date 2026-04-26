@@ -17,7 +17,7 @@ export function UpdatePasswordForm({ password, setPassword, onSubmit, error, mes
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-sm focus:bg-neutral-100 outline-none transition-colors"
+          className="w-full bg-transparent border-b-2 border-foreground py-2 font-mono text-[16px] md:text-sm focus:bg-neutral-100 outline-none transition-colors"
           required
           placeholder="••••••••"
         />

@@ -71,23 +71,29 @@ export function smartParseLine(line: string): Ingredient | null {
 
   if ((!hasNumber && !unit) || !item) return null;
 
-  // Basic fraction evaluator (e.g., "1 1/2" -> 1.5)
-  const parseAmount = (val: string): number => {
-    const cleanVal = val.replace(/\s+/g, ' ').trim();
-    if (cleanVal.includes('/') && !cleanVal.includes(':')) {
-      const parts = cleanVal.split(' ');
-      if (parts.length > 1) return parseFloat(parts[0]) + (eval(parts[1]) || 0);
-      return eval(cleanVal) || 1;
-    }
-    const num = parseFloat(val);
-    return isNaN(num) ? 1 : num;
-  };
-
   return {
     amount: hasNumber ? parseAmount(rawAmount!) : 1,
     unit: unit,
     item: item,
   };
+}
+
+/**
+ * Safely parses strings and fractions (e.g., "1 1/2" -> 1.5)
+ */
+export function parseAmount(val: string): number {
+  const cleanVal = val.replace(/\s+/g, ' ').trim();
+  if (cleanVal.includes('/') && !cleanVal.includes(':')) {
+    const parts = cleanVal.split(' ');
+    if (parts.length > 1) {
+      const fraction = parts[1].split('/');
+      return parseFloat(parts[0]) + (parseFloat(fraction[0]) / (parseFloat(fraction[1]) || 1));
+    }
+    const fraction = cleanVal.split('/');
+    return parseFloat(fraction[0]) / (parseFloat(fraction[1]) || 1);
+  }
+  const num = parseFloat(val);
+  return isNaN(num) ? 1 : num;
 }
 
 export const CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Snacks", "Appetizers", "Desserts", "Drinks", "Salads", "Soups", "Side Dishes", "Baking", "Sauces"];
