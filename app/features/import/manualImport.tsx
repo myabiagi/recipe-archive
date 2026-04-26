@@ -117,7 +117,14 @@ export function ManualImport({ initialData }: { initialData?: any }) {
       if (error) {
         console.error("Archive Rejection Details:", error);
         if (error.code === '23505') {
-          throw new Error(`A recipe titled "${title.trim()}" already exists in your archive.`);
+          // Check if the error was triggered by the URL or the Title
+          if (error.message?.toLowerCase().includes('source_url')) {
+            throw new Error("This specific dispatch URL has already been logged in your archive.");
+          }
+          if (error.message?.toLowerCase().includes('title') || error.message?.toLowerCase().includes('case_insensitive')) {
+            throw new Error(`A record titled "${title.trim()}" (or a very similar variation) already exists.`);
+          }
+          throw new Error("A duplicate record was detected in the archive.");
         }
         throw new Error(error.message);
       }
