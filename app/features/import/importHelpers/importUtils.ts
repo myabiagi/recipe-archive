@@ -1,8 +1,28 @@
 import type { Ingredient } from "~/types/recipe";
 
+const UNIT_CONVERSIONS: Record<string, string> = {
+  "tablespoon": "tbsp",
+  "tablespoons": "tbsp",
+  "teaspoon": "tsp",
+  "teaspoons": "tsp",
+  "ounce": "oz",
+  "ounces": "oz",
+  "pound": "lb",
+  "pounds": "lb",
+  "gram": "g",
+  "grams": "g",
+  "kilogram": "kg",
+  "kilograms": "kg",
+  "milliliter": "ml",
+  "milliliters": "ml",
+  "liter": "l",
+  "liters": "l"
+};
+
 const UNIT_KEYWORDS = [
   "cup", "cups", "tbsp", "tsp", "oz", "g", "kg", "ml", "l", "lb", "lbs", 
-  "can", "clove", "cloves", "pinch", "dash", "slice", "slices", "bag", "package"
+  "can", "clove", "cloves", "pinch", "dash", "slice", "slices", "bag", "package",
+  ...Object.keys(UNIT_CONVERSIONS)
 ];
 
 const IGNORE_KEYWORDS = [
@@ -64,18 +84,31 @@ export function smartParseLine(line: string): Ingredient | null {
   const itemCandidate = match[3]?.trim() || "";
   
   const hasNumber = !!rawAmount && /[\d]/.test(rawAmount);
+  const isOptional = cleanLine.includes("optional");
   let unit = ""; 
   let item = "";
 
-  if (UNIT_KEYWORDS.includes(unitCandidate.toLowerCase())) {
-    unit = unitCandidate.toLowerCase();
+  const lowerUnitCandidate = unitCandidate.toLowerCase();
+  if (UNIT_KEYWORDS.includes(lowerUnitCandidate)) {
+    unit = UNIT_CONVERSIONS[lowerUnitCandidate] || lowerUnitCandidate;
     item = itemCandidate;
   } else {
     unit = "";
     item = itemCandidate ? `${unitCandidate} ${itemCandidate}` : unitCandidate;
   }
 
-  if ((!hasNumber && !unit) || !item) return null;
+  // Decode common HTML entities often found in scraper metadata or raw pastes
+  item = item.replace(/&amp;/g, '&')
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>')
+             .replace(/&quot;/g, '"')
+             .replace(/&#039;/g, "'")
+             .replace(/&#39;/g, "'");
+
+  // Clean up redundant punctuation and double brackets often found in scraper metadata
+  item = item.replace(/\(\s*\(/g, '(').replace(/\)\s*\)/g, ')').replace(/,\s*\(/g, ' (').trim();
+
+  if ((!hasNumber && !unit && !isOptional) || !item) return null;
 
   return {
     amount: hasNumber ? parseAmount(rawAmount!) : 1,

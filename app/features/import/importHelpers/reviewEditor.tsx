@@ -100,7 +100,7 @@ export function ReviewEditor({
       )}
 
       <div className="flex gap-4 pt-8 border-t-2 border-foreground">
-        <button onClick={onBack} className="flex-1 py-4 border-2 border-foreground font-black uppercase text-[10px] md:text-xs cursor-pointer truncate px-1">Edit Manuscript</button>
+        <button onClick={onBack} className="flex-1 py-4 border-2 border-foreground font-black uppercase text-[10px] md:text-xs cursor-pointer truncate px-1">Edit</button>
         <button onClick={onSave} disabled={isSaving} className="flex-[3] py-4 bg-foreground text-background font-black uppercase text-[10px] md:text-xs cursor-pointer hover:bg-accent disabled:opacity-50 px-1">
           {isSaving ? "Archiving..." : "Commit to Archive"}
         </button>
