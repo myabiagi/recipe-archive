@@ -28,7 +28,7 @@ export function UrlForm({ url, setUrl, onSubmit, isLoading }: UrlFormProps) {
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
-            <span className="animate-pulse">Dispatching Scraper...</span>
+            <span className="animate-pulse">Fetching recipe...</span>
           </span>
         ) : (
           "Extract Data"

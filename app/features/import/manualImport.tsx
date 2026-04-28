@@ -141,7 +141,7 @@ export function ManualImport({ initialData }: { initialData?: any }) {
     return (
       <ReviewEditor 
         title={title} category={category} cuisine={cuisine} 
-        image={image} servings={Number(servingsBase)} sourceUrl={sourceUrl} totalTime={totalTime}
+        image={image} servings={servingsBase === "" ? 0 : Number(servingsBase)} sourceUrl={sourceUrl} totalTime={totalTime}
         ingredients={ingredients} setIngredients={setIngredients}
         instructions={instructions} setInstructions={setInstructions}
         onBack={() => setIsReviewing(false)}
