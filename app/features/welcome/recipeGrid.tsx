@@ -10,8 +10,8 @@ export function RecipeGrid() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedMealTypes, setSelectedMealTypes] = useState<string[]>([]);
-  const [isCuisineOpen, setIsCuisineOpen] = useState(true);
-  const [isMealTypeOpen, setIsMealTypeOpen] = useState(true);
+  const [isCuisineOpen, setIsCuisineOpen] = useState(false);
+  const [isMealTypeOpen, setIsMealTypeOpen] = useState(false);
 
   const availableCuisines = useMemo(() => {
     const values = new Set<string>();

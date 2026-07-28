@@ -5,7 +5,7 @@ import { supabase } from "~/lib/supabase";
 import type { Ingredient, Recipe } from "~/types/recipe";
 import { CATEGORIES, CUISINES, formatAmount, parseAmount, smartParseLine } from "~/features/import/importHelpers/importUtils";
 
-const SCALE_OPTIONS = [0.25, 0.5, 1, 2, 3, 4];
+const SCALE_OPTIONS = [0.5, 1, 2, 3];
 
 export default function RecipeDetail() {
   const { id } = useParams();
@@ -21,8 +21,8 @@ export default function RecipeDetail() {
   const [servingsBase, setServingsBase] = useState(1);
   const [totalTime, setTotalTime] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
-  const [ingredientsText, setIngredientsText] = useState("");
-  const [instructionsText, setInstructionsText] = useState("");
+  const [ingredientLines, setIngredientLines] = useState<string[]>([]);
+  const [instructions, setInstructions] = useState<string[]>([]);
   const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
 
   const fetchRecipe = async () => {
@@ -49,8 +49,9 @@ export default function RecipeDetail() {
       setServingsBase(nextRecipe.servings_base || 1);
       setTotalTime(nextRecipe.total_time || "");
       setSourceUrl(nextRecipe.source_url || "");
-      setIngredientsText(nextRecipe.ingredients.map((item) => `${formatAmount(item.amount)} ${item.unit ? `${item.unit} ` : ""}${item.item}`.trim()).join("\n"));
-      setInstructionsText(nextRecipe.instructions.join("\n"));
+      setIngredientLines(nextRecipe.ingredients.map((item) => `${formatAmount(item.amount)} ${item.unit ? `${item.unit} ` : ""}${item.item}`.trim()));
+      setInstructions(nextRecipe.instructions);
+      setSelectedIngredients([]);
     }
 
     setIsLoading(false);
@@ -58,15 +59,13 @@ export default function RecipeDetail() {
 
   useEffect(() => {
     fetchRecipe();
-    setSelectedIngredients([]);
   }, [id]);
 
   const scaledIngredients = useMemo(() => {
     if (!recipe) return [];
 
     const sourceIngredients = isEditing
-      ? ingredientsText
-          .split("\n")
+      ? ingredientLines
           .map((line) => line.trim())
           .filter(Boolean)
           .map((line) => smartParseLine(line))
@@ -77,16 +76,13 @@ export default function RecipeDetail() {
       ...ingredient,
       amount: Number((ingredient.amount * scaleFactor).toFixed(2)),
     }));
-  }, [recipe, scaleFactor, isEditing, ingredientsText]);
+  }, [recipe, scaleFactor, isEditing, ingredientLines]);
 
   const displayInstructions = useMemo(() => {
     if (!recipe) return [];
     if (!isEditing) return recipe.instructions;
-    return instructionsText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-  }, [recipe, isEditing, instructionsText]);
+    return instructions.filter((line) => line.trim().length > 0);
+  }, [recipe, isEditing, instructions]);
 
   const displayValue = (value?: string | null) => (value && value.trim() ? value : "N/A");
 
@@ -106,18 +102,14 @@ export default function RecipeDetail() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) throw new Error("You need to be signed in to update this recipe.");
 
-      const parsedIngredients = ingredientsText
-        .split("\n")
+      const parsedIngredients = ingredientLines
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => smartParseLine(line))
         .filter((value): value is Ingredient => value !== null)
         .map((value) => ({ ...value, amount: typeof value.amount === "string" ? parseAmount(String(value.amount)) : value.amount }));
 
-      const parsedInstructions = instructionsText
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
+      const parsedInstructions = instructions.map((line) => line.trim()).filter(Boolean);
 
       const { error } = await supabase
         .from("recipes")
@@ -304,29 +296,43 @@ export default function RecipeDetail() {
                 <SlidersHorizontal size={16} />
                 <h2 className="font-mono text-[10px] uppercase tracking-[0.3em]">Ingredients</h2>
               </div>
-              <div className="space-y-2">
-                {scaledIngredients.map((ingredient, index) => {
-                  const isChecked = selectedIngredients.includes(index);
-                  return (
-                    <button
-                      key={`${ingredient.item}-${index}`}
-                      type="button"
-                      onClick={() => toggleIngredientSelection(index)}
-                      className="flex w-full items-start gap-2 border-b border-dotted border-neutral-300 pb-2 text-left"
-                    >
-                      <span className={`mt-1 flex h-5 w-5 items-center justify-center border border-foreground ${isChecked ? "bg-foreground text-background" : "bg-white"}`}>
-                        {isChecked && <Check size={12} />}
-                      </span>
-                      <p className={`font-serif text-lg leading-relaxed ${isChecked ? "text-neutral-500 line-through" : ""}`}>
-                        <span className="font-semibold">{formatAmount(ingredient.amount)}</span>{ingredient.unit ? ` ${ingredient.unit}` : ""} {ingredient.item}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-              {isEditing && (
-                <div className="mt-6">
-                  <textarea value={ingredientsText} onChange={(event) => setIngredientsText(event.target.value)} rows={10} className="w-full border border-foreground bg-neutral-50 p-3 font-sans text-sm outline-none" />
+              {!isEditing ? (
+                <div className="space-y-2">
+                  {scaledIngredients.map((ingredient, index) => {
+                    const isChecked = selectedIngredients.includes(index);
+                    return (
+                      <button
+                        key={`${ingredient.item}-${index}`}
+                        type="button"
+                        onClick={() => toggleIngredientSelection(index)}
+                        className="flex w-full items-start gap-2 border-b border-dotted border-neutral-300 pb-2 text-left"
+                      >
+                        <span className={`mt-1 flex h-5 w-5 items-center justify-center border border-foreground ${isChecked ? "bg-foreground text-background" : "bg-white"}`}>
+                          {isChecked && <Check size={12} />}
+                        </span>
+                        <p className={`font-serif text-lg leading-relaxed ${isChecked ? "text-neutral-500 line-through" : ""}`}>
+                          <span className="font-semibold">{formatAmount(ingredient.amount)}</span>{ingredient.unit ? ` ${ingredient.unit}` : ""} {ingredient.item}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {ingredientLines.map((line, index) => (
+                    <div key={`${line}-${index}`} className="rounded-none border border-foreground/20 bg-neutral-50 p-3">
+                      <textarea
+                        value={line}
+                        onChange={(event) => {
+                          const next = [...ingredientLines];
+                          next[index] = event.target.value;
+                          setIngredientLines(next);
+                        }}
+                        rows={2}
+                        className="w-full border-none bg-transparent font-serif text-lg leading-relaxed outline-none"
+                      />
+                    </div>
+                  ))}
                 </div>
               )}
             </article>
@@ -337,17 +343,32 @@ export default function RecipeDetail() {
                   <Check size={14} />
                   <h2 className="font-mono text-[10px] uppercase tracking-[0.3em]">Instructions</h2>
                 </div>
-                <div className="space-y-3">
-                  {displayInstructions.map((instruction, index) => (
-                    <div key={`${instruction}-${index}`} className="rounded-none border border-foreground/20 bg-white p-3">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Step {index + 1}</p>
-                      <p className="mt-1 font-serif text-base leading-relaxed">{instruction}</p>
-                    </div>
-                  ))}
-                </div>
-                {isEditing && (
-                  <div className="mt-6">
-                    <textarea value={instructionsText} onChange={(event) => setInstructionsText(event.target.value)} rows={10} className="w-full border border-foreground bg-neutral-50 p-3 font-sans text-sm outline-none" />
+                {!isEditing ? (
+                  <div className="space-y-3">
+                    {displayInstructions.map((instruction, index) => (
+                      <div key={`${instruction}-${index}`} className="rounded-none border border-foreground/20 bg-white p-3">
+                        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Step {index + 1}</p>
+                        <p className="mt-1 font-serif text-base leading-relaxed">{instruction}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {instructions.map((instruction, index) => (
+                      <div key={`${instruction}-${index}`} className="rounded-none border border-foreground/20 bg-neutral-50 p-3">
+                        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Step {index + 1}</p>
+                        <textarea
+                          value={instruction}
+                          onChange={(event) => {
+                            const next = [...instructions];
+                            next[index] = event.target.value;
+                            setInstructions(next);
+                          }}
+                          rows={4}
+                          className="mt-2 w-full border-none bg-transparent font-serif text-base leading-relaxed outline-none"
+                        />
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
