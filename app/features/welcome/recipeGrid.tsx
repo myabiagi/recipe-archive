@@ -10,7 +10,8 @@ export function RecipeGrid() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedMealTypes, setSelectedMealTypes] = useState<string[]>([]);
-  const [openSection, setOpenSection] = useState<"cuisine" | "mealType" | null>("cuisine");
+  const [isCuisineOpen, setIsCuisineOpen] = useState(true);
+  const [isMealTypeOpen, setIsMealTypeOpen] = useState(true);
 
   const availableCuisines = useMemo(() => {
     const values = new Set<string>();
@@ -120,12 +121,12 @@ export function RecipeGrid() {
               <button
                 type="button"
                 className="flex w-full items-center justify-between px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.25em]"
-                onClick={() => setOpenSection(openSection === "cuisine" ? null : "cuisine")}
+                onClick={() => setIsCuisineOpen((value) => !value)}
               >
                 <span>Cuisine</span>
-                {openSection === "cuisine" ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {isCuisineOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
-              {openSection === "cuisine" && (
+              {isCuisineOpen && (
                 <div className="border-t border-foreground/20 p-2 space-y-2">
                   {cuisineOptions.map((option) => {
                     const active = selectedCuisines.includes(option);
@@ -149,12 +150,12 @@ export function RecipeGrid() {
               <button
                 type="button"
                 className="flex w-full items-center justify-between px-3 py-2 text-left font-mono text-[10px] uppercase tracking-[0.25em]"
-                onClick={() => setOpenSection(openSection === "mealType" ? null : "mealType")}
+                onClick={() => setIsMealTypeOpen((value) => !value)}
               >
                 <span>Meal Type</span>
-                {openSection === "mealType" ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {isMealTypeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
-              {openSection === "mealType" && (
+              {isMealTypeOpen && (
                 <div className="border-t border-foreground/20 p-2 space-y-2">
                   {mealTypeOptions.map((option) => {
                     const active = selectedMealTypes.includes(option);

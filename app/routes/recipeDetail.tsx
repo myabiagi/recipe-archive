@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { Check, ChevronLeft, Edit3, SlidersHorizontal } from "lucide-react";
 import { supabase } from "~/lib/supabase";
 import type { Ingredient, Recipe } from "~/types/recipe";
@@ -9,7 +9,6 @@ const SCALE_OPTIONS = [0.25, 0.5, 1, 2, 3, 4];
 
 export default function RecipeDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +23,7 @@ export default function RecipeDetail() {
   const [sourceUrl, setSourceUrl] = useState("");
   const [ingredientsText, setIngredientsText] = useState("");
   const [instructionsText, setInstructionsText] = useState("");
+  const [selectedIngredients, setSelectedIngredients] = useState<number[]>([]);
 
   const fetchRecipe = async () => {
     setIsLoading(true);
@@ -58,6 +58,7 @@ export default function RecipeDetail() {
 
   useEffect(() => {
     fetchRecipe();
+    setSelectedIngredients([]);
   }, [id]);
 
   const scaledIngredients = useMemo(() => {
@@ -86,6 +87,14 @@ export default function RecipeDetail() {
       .map((line) => line.trim())
       .filter(Boolean);
   }, [recipe, isEditing, instructionsText]);
+
+  const displayValue = (value?: string | null) => (value && value.trim() ? value : "N/A");
+
+  const toggleIngredientSelection = (index: number) => {
+    setSelectedIngredients((current) =>
+      current.includes(index) ? current.filter((item) => item !== index) : [...current, index]
+    );
+  };
 
   const handleSave = async () => {
     if (!recipe) return;
@@ -194,7 +203,7 @@ export default function RecipeDetail() {
           <div className="mb-6 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="max-w-2xl">
               <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-neutral-500">
-                {recipe.category || "Archive"} • {recipe.cuisine || "Unclassified"}
+                {displayValue(recipe.category || "Archive")} • {displayValue(recipe.cuisine)}
               </p>
               {isEditing ? (
                 <input
@@ -228,7 +237,7 @@ export default function RecipeDetail() {
                   ))}
                 </select>
               ) : (
-                <p className="mt-1 font-serif text-lg">{recipe.category || "Unclassified"}</p>
+                <p className="mt-1 font-serif text-lg">{displayValue(recipe.category)}</p>
               )}
             </div>
             <div>
@@ -241,7 +250,7 @@ export default function RecipeDetail() {
                   ))}
                 </select>
               ) : (
-                <p className="mt-1 font-serif text-lg">{recipe.cuisine || "Unclassified"}</p>
+                <p className="mt-1 font-serif text-lg">{displayValue(recipe.cuisine)}</p>
               )}
             </div>
             <div>
@@ -249,7 +258,7 @@ export default function RecipeDetail() {
               {isEditing ? (
                 <input value={totalTime} onChange={(event) => setTotalTime(event.target.value)} className="mt-1 w-full border border-foreground bg-white px-2 py-2 font-sans text-sm outline-none" />
               ) : (
-                <p className="mt-1 font-serif text-lg">{recipe.total_time || "—"}</p>
+                <p className="mt-1 font-serif text-lg">{displayValue(recipe.total_time)}</p>
               )}
             </div>
             <div>
@@ -257,15 +266,19 @@ export default function RecipeDetail() {
               {isEditing ? (
                 <input type="number" min="1" value={servingsBase} onChange={(event) => setServingsBase(Number(event.target.value))} className="mt-1 w-full border border-foreground bg-white px-2 py-2 font-sans text-sm outline-none" />
               ) : (
-                <p className="mt-1 font-serif text-lg">{recipe.servings_base}</p>
+                <p className="mt-1 font-serif text-lg">{displayValue(String(recipe.servings_base))}</p>
               )}
             </div>
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-500">Source</p>
               {isEditing ? (
                 <input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} className="mt-1 w-full border border-foreground bg-white px-2 py-2 font-sans text-sm outline-none" />
+              ) : recipe.source_url ? (
+                <a href={recipe.source_url} target="_blank" rel="noreferrer" className="mt-1 block font-serif text-lg text-accent underline break-all">
+                  {displayValue(recipe.source_url)}
+                </a>
               ) : (
-                <p className="mt-1 font-serif text-lg">{recipe.source_url ? recipe.source_url : "—"}</p>
+                <p className="mt-1 font-serif text-lg">N/A</p>
               )}
             </div>
             <div>
@@ -292,34 +305,37 @@ export default function RecipeDetail() {
                 <h2 className="font-mono text-[10px] uppercase tracking-[0.3em]">Ingredients</h2>
               </div>
               <div className="space-y-2">
-                {scaledIngredients.map((ingredient, index) => (
-                  <div key={`${ingredient.item}-${index}`} className="flex items-start gap-2 border-b border-dotted border-neutral-300 pb-2">
-                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-foreground" />
-                    <p className="font-serif text-lg leading-relaxed">
-                      <span className="font-semibold">{formatAmount(ingredient.amount)}</span>{ingredient.unit ? ` ${ingredient.unit}` : ""} {ingredient.item}
-                    </p>
-                  </div>
-                ))}
+                {scaledIngredients.map((ingredient, index) => {
+                  const isChecked = selectedIngredients.includes(index);
+                  return (
+                    <button
+                      key={`${ingredient.item}-${index}`}
+                      type="button"
+                      onClick={() => toggleIngredientSelection(index)}
+                      className="flex w-full items-start gap-2 border-b border-dotted border-neutral-300 pb-2 text-left"
+                    >
+                      <span className={`mt-1 flex h-5 w-5 items-center justify-center border border-foreground ${isChecked ? "bg-foreground text-background" : "bg-white"}`}>
+                        {isChecked && <Check size={12} />}
+                      </span>
+                      <p className={`font-serif text-lg leading-relaxed ${isChecked ? "text-neutral-500 line-through" : ""}`}>
+                        <span className="font-semibold">{formatAmount(ingredient.amount)}</span>{ingredient.unit ? ` ${ingredient.unit}` : ""} {ingredient.item}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
               {isEditing && (
                 <div className="mt-6">
-                  <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.25em]">Ingredient lines</label>
                   <textarea value={ingredientsText} onChange={(event) => setIngredientsText(event.target.value)} rows={10} className="w-full border border-foreground bg-neutral-50 p-3 font-sans text-sm outline-none" />
                 </div>
               )}
             </article>
 
             <aside>
-              <div className="mb-6 border-l-4 border-foreground bg-neutral-50 p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500">Editorial note</p>
-                <p className="mt-2 font-serif text-lg leading-relaxed">
-                  This page preserves the parsed structure from the import flow and presents it in a clean, newspaper-style layout for reading at a glance.
-                </p>
-              </div>
               <div className="mb-6">
                 <div className="mb-2 flex items-center gap-2 border-b border-foreground/20 pb-2">
                   <Check size={14} />
-                  <h2 className="font-mono text-[10px] uppercase tracking-[0.3em]">Method</h2>
+                  <h2 className="font-mono text-[10px] uppercase tracking-[0.3em]">Instructions</h2>
                 </div>
                 <div className="space-y-3">
                   {displayInstructions.map((instruction, index) => (
@@ -331,7 +347,6 @@ export default function RecipeDetail() {
                 </div>
                 {isEditing && (
                   <div className="mt-6">
-                    <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.25em]">Instruction lines</label>
                     <textarea value={instructionsText} onChange={(event) => setInstructionsText(event.target.value)} rows={10} className="w-full border border-foreground bg-neutral-50 p-3 font-sans text-sm outline-none" />
                   </div>
                 )}
