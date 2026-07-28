@@ -28,6 +28,18 @@ export function RecipeGrid() {
     return Array.from(values).sort((a, b) => a.localeCompare(b));
   }, [recipes]);
 
+  const cuisineOptions = useMemo(() => {
+    const knownOptions = CUISINES.filter((option) => availableCuisines.includes(option));
+    const customOptions = availableCuisines.filter((option) => !CUISINES.includes(option));
+    return knownOptions.length > 0 || customOptions.length > 0 ? [...knownOptions, ...customOptions] : CUISINES;
+  }, [availableCuisines]);
+
+  const mealTypeOptions = useMemo(() => {
+    const knownOptions = CATEGORIES.filter((option) => availableMealTypes.includes(option));
+    const customOptions = availableMealTypes.filter((option) => !CATEGORIES.includes(option));
+    return knownOptions.length > 0 || customOptions.length > 0 ? [...knownOptions, ...customOptions] : CATEGORIES;
+  }, [availableMealTypes]);
+
   const filteredRecipes = useMemo(() => {
     return recipes.filter((recipe) => {
       const matchesCuisine =
@@ -115,7 +127,7 @@ export function RecipeGrid() {
               </button>
               {openSection === "cuisine" && (
                 <div className="border-t border-foreground/20 p-2 space-y-2">
-                  {([...CUISINES.filter((option) => availableCuisines.includes(option)), ...availableCuisines.filter((option) => !CUISINES.includes(option))]).length > 0 ? [...CUISINES.filter((option) => availableCuisines.includes(option)), ...availableCuisines.filter((option) => !CUISINES.includes(option))] : CUISINES).map((option) => {
+                  {cuisineOptions.map((option) => {
                     const active = selectedCuisines.includes(option);
                     return (
                       <button
@@ -144,7 +156,7 @@ export function RecipeGrid() {
               </button>
               {openSection === "mealType" && (
                 <div className="border-t border-foreground/20 p-2 space-y-2">
-                  {([...CATEGORIES.filter((option) => availableMealTypes.includes(option)), ...availableMealTypes.filter((option) => !CATEGORIES.includes(option))]).length > 0 ? [...CATEGORIES.filter((option) => availableMealTypes.includes(option)), ...availableMealTypes.filter((option) => !CATEGORIES.includes(option))] : CATEGORIES).map((option) => {
+                  {mealTypeOptions.map((option) => {
                     const active = selectedMealTypes.includes(option);
                     return (
                       <button
